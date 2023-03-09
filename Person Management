@@ -1,0 +1,339 @@
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.util.Scanner; 
+import java.lang.Math; 
+
+public class PersonManagement{ 
+	public static void main(String[] args){
+
+		Person head = null;
+		head = getPersonFromDataFile("input.txt"); 
+		System.out.println("--------------------------------------");
+		System.out.println("Printing the Linked List");
+		printLL(head);
+
+		Person newPerson = new Person("newPerson_1", 888, 8.8, 8, 8);
+		head = addPerson(head, newPerson, 0);
+		System.out.println("\n\n--------------------------------------");
+		System.out.println("Adding a new person at position 0\n");
+		System.out.println("Printing the Linked List\n");
+		printLL(head);
+
+		Person newPerson2 = new Person("newPerson_2", 666, 6.6, 6, 6);
+		head = addPerson(head, newPerson2, 3);
+		System.out.println("\n\n--------------------------------------");
+		System.out.println("Adding a new person at position 3\n");
+		System.out.println("Printing the Linked List\n");
+		printLL(head);
+
+		head = deletePerson(head, 3);
+		System.out.println("\n\n--------------------------------------");
+		System.out.println("Deleting a person from position 3\n");
+		System.out.println("Printing the Linked List\n");
+		printLL(head);
+
+		head = deletePerson(head, 0);
+		System.out.println("\n\n--------------------------------------");
+		System.out.println("Deleting a person from position 0\n");
+		System.out.println("Printing the Linked List\n");
+		printLL(head);
+
+		System.out.println("\n\n--------------------------------------");
+		System.out.println("\nThe person worked most years: ");
+		workedMostYears(head);
+
+		System.out.println("\n\n--------------------------------------");
+		System.out.println("\nThe person worked least years: ");
+		workedLeastYears(head);
+
+		System.out.println("\n\n--------------------------------------");
+		System.out.println("\nAverage hours worked in the last week: ");
+		averageHoursWorked(head);
+
+		System.out.println("\n\n--------------------------------------");
+		System.out.println("\nTotal payment amount for each person based on hoursWorked and hourlyWage: ");
+		totalPaymentToEachPerson(head);
+
+		System.out.println("\n\n--------------------------------------");
+		Person newPerson3 = new Person("newPerson_3", 102, 8.8, 8, 8);
+		head = addPersonByCheckingId(head, newPerson3, 4);
+		System.out.println("Printing the Linked List\n");
+		printLL(head);
+
+		System.out.println("\n\n--------------------------------------");
+		Person newPerson4 = new Person("newPerson_4", 103, 8.8, 8, 8);
+		head = addPersonByCheckingId(head, newPerson4, 4);
+		System.out.println("Printing the Linked List\n");
+		printLL(head);
+
+	}
+
+	//method to print the linked list given the head 
+	public static void printLL (Person head) { 
+		//traverse the linked list using a while loop and print the contents using the toString method of tthe person class
+		while(head!=null){
+            System.out.println(head.toString());
+			//make the current head the next element of the list
+            head = head.next;
+        }
+	}
+
+	//method to add a person object to the linked list given the head, the person object, and the position
+	//returns the head node
+	public static Person addPerson (Person head, Person toAdd, int position) {
+		// check if the list is empty, if so, add the new node as the head of the list
+		if (head == null) {
+			return toAdd;
+		}
+
+		// ff the position is less than or equal to zero, add the new node at the head of the list
+		if (position <= 0) {
+			toAdd.next = head;
+			return toAdd;
+		}
+
+		//traverse the linked list to find the number of nodes, using a while loop, a counter and a temp variable.
+		int numNodes=0;
+		Person temp = head;
+		while(temp!=null){
+			temp = temp.next;
+			numNodes++;
+		}
+		//if the position is greater than the number of nodes, make the position equal the total number of nodes
+		if(position>=numNodes){
+			position = numNodes;
+		}
+
+		//using a current variable and an index variable, traverse the linked list with a while loop
+		//making sure the next element isn't null and the index is less than the position-1 to find the correct node
+		Person current = head;
+		int index = 0;
+		while (current.next != null && index < position-1) {
+			current = current.next;
+			index++;
+		}
+
+		// insert the new node toAdd after the node found in the previous step
+		toAdd.next = current.next;
+		current.next = toAdd;
+
+		return head;
+	}	
+
+	public static Person deletePerson(Person head, int position){
+		//check that the linked list is is not null
+        if(head==null){
+			return null;
+        }
+
+		//if the position is zero, delete the head node and return the second as the new head node
+		if(position==0){
+			head = head.next;
+			return head;
+		}
+		
+		//using the two pointer approach, create a current and previous pointer and a variable to keep track of the index
+		Person previous = head;
+		Person current = head.next; 
+		int index = 1; 
+		//traverse the linked list, if the index and position match, delete the current node and return the head node
+		while(current != null){		
+			if(index==position){
+                previous.next = current.next;
+				return head;
+			}
+
+			//update the index and each pointer by one position in the list to keep traversing
+			previous = current;
+			current = current.next;
+			index++;
+		}
+
+		//if we exited the while loop, current is null and we didn't find the position meaning it is the last node
+		//delete the last node and return the head node
+		current = previous;
+		return head;
+	}    
+
+	//method that prints the person that worked the most years given the head node of the list
+	public static void workedMostYears(Person head) { 
+		//create a variable to keep track of the max and the name
+		//traverse the linked list and compare the years worked of current and max, 
+		//if current is greater set it to max and update the name. 
+        int maxYears = head.years;
+        String name = "";
+        head = head.next;
+		while(head!=null){
+            if(head.years>maxYears){
+                name = head.getName();
+                maxYears = head.years;
+            }
+            head = head.next;
+        }
+		//print the name and years of the person that worked the most years
+        System.out.println("Name: " + name + " years: " + maxYears);
+	} 
+
+	//method that prints the person that worked the least years given the head node of the list
+    public static void workedLeastYears(Person head){
+		//using the same approach as the prevoius method, create a variable to store the leastYears and the name
+		//traverse the linked list, compare the current to the least and update the name and leastYears when 
+		//the current is less than the leastYears variable
+        int leastYears = head.years;
+        String name = "";
+        head = head.next;
+		while(head!=null){
+            if(head.years<leastYears){
+                name = head.getName();
+                leastYears = head.years;
+            }
+            head = head.next;
+        }
+		//print the name and years of the person that worked the least years
+        System.out.println("Name: " + name + " years: " + leastYears);
+    }
+
+	//method that prints the average hours worked given the head node of the list
+    public static void averageHoursWorked(Person head){
+		//initiate a double sum variable to zero and a counter of the number of people
+		//the total sum of hours worked divided by the number ofpeople will give us the average
+        double sum=0.0;
+        int numOfPeople = 0;
+		//traverse the linked list, add the hoursWorked of each person object to the sum variable and update numOfPeople
+        while(head!=null){
+            sum+= head.hoursWorked;
+            head=head.next;
+            numOfPeople++;
+        }
+		//print the average meaning the sum of hours worked over the number of people
+        System.out.println("Average Hours Worked: " + sum/numOfPeople);
+    }
+
+	//method that prints the total payment to each person given the head node of the list
+    public static void totalPaymentToEachPerson(Person head){
+		//initialize an hourly wage variable to calculate the correct wage depending on the wage per hour and wether itsovertime of each person
+        double wage=0.0;
+        //initialize an hourly wage variable to calculate the correct wage depending on the wage per hour of each person
+		//and wether they worked overtime
+		//traverse the list
+        while(head!=null){
+			//check if the person worked overtime
+            if(head.hoursWorked<=40){
+				//if not their wage is their hourly wage times the hours worked
+            	wage = head.hourlyWage*head.hoursWorked;
+			}
+			//if they worked overtime, calculate their wage for the forty hours as before
+			//calculate the overtime wage and add it the the previous value
+            else if(head.hoursWorked>40){
+                double overtime = head.hoursWorked - 40;
+				wage = (head.hourlyWage)*(head.hoursWorked - overtime);
+				wage += (head.hourlyWage*2)*overtime;
+            }
+			//print the name, hours worked and total payment of each person
+            System.out.println("\nName: " + head.getName() +
+                                "\nHourse Worked: " + head.hoursWorked + 
+                                "\nPayment: " + wage);
+            head = head.next;
+        }
+    }
+
+	//method to add a person object to the linked list by checking if their id is already present, 
+	//given the head, the person object, and the position it returns the head node
+	public static Person addPersonByCheckingId(Person head, Person newPerson, int position) {
+		//check the head is not null
+		if(head==null){
+			return null;
+        }
+
+		//traverse the list and create temp variable so we can still return the head node
+		Person temp = head;
+        while(temp!=null){
+			//if the current person's id matches the id of the person we want to add, 
+			//print adding failed statement and return head node
+            if(newPerson.getId()==temp.getId()){
+                System.out.println("Adding Failed. Id already exists in the Linked List\n");
+                return head;
+            }
+            temp = temp.next;
+        }
+
+		//reset temp variable, traverse the list and keep track of the number of nodes
+		temp = head;
+		int numNodes=0;
+		while(temp!=null){
+			temp = temp.next;
+			numNodes++;
+		}
+		//if the position is greater than the num of nodes, set position to total num of nodes
+		if(position>numNodes){
+			position = numNodes;
+		}
+
+		//if we didn't return we know we can add the new node
+        System.out.println("Adding a new person at position " + position + "\n");
+        
+		//if position is less than or equal zero, add the person as the head node and return it
+		if (position <= 0) {
+			newPerson.next = head;
+			return newPerson;
+		}
+		//using the same approach as the add method, use a current and an index variable, traverse the linked list
+		//make sure the next element isn't null and the index is less than the position-1 to find the correct node
+		Person current = head;
+		int index = 0;
+		while (current.next != null && index < position-1) {
+			current = current.next;
+			index++;
+		}
+
+		// insert the new node newPerson after the node found in the previous step and return the head node
+		newPerson.next = current.next;
+		current.next = newPerson;
+
+		return head;
+	}
+
+	//method that given the file name, reads the input and stores it in a linked list of person objects
+	static Person getPersonFromDataFile (String fileName){ 
+		//create the head node outside the try catch to return it at the end of the method
+		Person head = new Person();
+		//try catch block to read the file using file object and scanner class
+        try{
+            File file = new File("input.txt");
+            Scanner sc = new Scanner(file);
+			//boolean flag to identify the head node and temp variable to traverse the list
+            boolean headNode = true;
+            Person temp = new Person();
+
+			//read file line by line with a while loop and hasNextLine() Scanner method
+            while(sc.hasNextLine()){
+				//store the line in a string and use the split method to store each element in an array 
+                String input =sc.nextLine();
+                String [] split = input.split("\t");
+
+				//create variables for each element of the method class and store the appropriate values from the array
+                String personName = split[0];
+                int personId = Integer.valueOf(split[1]);
+                double personHours = Double.valueOf(split[2]);
+                double personWage = Double.valueOf(split[3]);
+                int personYears = Integer.valueOf(split[4]);
+
+				//if it is the headNode, meaning the first iteration, call the argument constructor of the person class 
+				//with the variables we stored each element in. set temp to head so we can keep iterating and update headNode
+                if(headNode){
+                    head = new Person(personName, personId, personHours, personWage, personYears);
+                    temp = head;
+                    headNode = false;
+                }else{
+					//otherwise use the next variable of the Person class and the constructor to create and link the objects
+                    temp.next = new Person(personName, personId, personHours, personWage, personYears);
+					//keep traversing
+                    temp = temp.next;
+                }
+            }
+        }catch (Exception e) {
+            System.err.println(e);
+        }
+        return head;
+	}
+} 
