@@ -1,0 +1,191 @@
+import java.util.Scanner;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.lang.Math;
+//import libraries needed
+
+public class ProductionAnalysis{
+    public static void main(String[] args){
+        
+        //create the 2d array to store the input with the numRowsOrColumns method explained later
+        int [][] productionInfo = new int [numRowsOrColumns("input.txt", "rows")][numRowsOrColumns("input.txt", "columns")];
+
+        //try catch block to read the file and store input into array
+        try{
+            File input = new File("input.txt");
+            Scanner sc = new Scanner(input);
+            
+            //creater an int counter variable called i and a String variable to store each line the scanner reads
+            int i=0;
+            String line="";
+            //while loop to read file with scanner using nextLine method
+            while(sc.hasNextLine()){
+                //create an array of the current line with the split method
+                String[] split = sc.nextLine().split(", ");
+                //use a for loop to store the contents of the split array into the 2d array 
+                //(parse String into int using Integer.valueOf method)
+                for (int j=0;j<split.length;j++){
+                    productionInfo[i][j]=Integer.valueOf(split[j]);
+                }
+                //increase counter that controls rows of said 2d array
+                i++;
+            }
+
+            sc.close();
+        }catch(FileNotFoundException e){
+            System.out.println("An error occurred.");
+            e.printStackTrace();
+        }
+
+        //call all four functions from the main method with the 2d array containing the file information
+        farm_avg(productionInfo);
+        month_avg(productionInfo);
+        top_farms(productionInfo);
+        top_months(productionInfo);
+    }
+
+    //farm_avg calculates the average production of each farm and prints it to the terminal
+    public static void farm_avg(int[][] data){
+        //find num of columns with numRowsOrColumns method for the average
+        int columns = numRowsOrColumns("input.txt", "columns");
+
+        //iterate rows then columns
+        /*nested for loop to iterate 2d array. add all the values of each row  (reset sum variable at every new row).
+        calculate average by dividing the sum over the num of columns, round to two decimals using Math.round method.
+        print formatted values to terminal*/
+        for (int i=0;i<data.length;i++){
+            int sum = 0;
+            for (int j=0;j<data[i].length;j++){
+                sum += data[i][j];
+            }
+            System.out.println("Sum of farm: " + i + " is : " + sum);
+            System.out.println("Average production for farm " + i + " is : " + Math.round(((double)sum/columns)*100.0)/100.0);
+        }
+        System.out.println();
+    }
+
+    //month_avg calculates the average production of each month and prints it to the terminal
+    public static void month_avg(int[][] data){
+        //find num of rows with numRowsOrColumns method for the average
+        int rows = numRowsOrColumns("input.txt", "rows");
+
+        //iterate columns then rows
+        //nested for loop to iterate 2d array. find the sum and average with the same approach as the prevoius method
+        for(int i=0;i<data[0].length;i++){
+            int sum = 0;
+            for(int j=0;j<data.length;j++){
+                sum += data[j][i];
+            }
+            System.out.println("Sum of month: " + i + " is : " + sum);
+            System.out.println("Average production for month " + i + " is : " + Math.round(((double)sum/rows)*100.0)/100.0);
+        }
+    }
+
+    //top_farms calculates the top three farms with the most production and prints it to the terminal
+    public static void top_farms (int[][] data){
+        //create a 2d array to store the index of the sums in the first row and the sum values in the second
+        int [][] sumArray = new int [2][numRowsOrColumns("input.txt", "rows")];
+
+        //nested for loop to calculate sums and store them and their index in the array. the index represents the farm number.
+        //access the rows then the columns
+        for (int i=0;i<data.length;i++){
+            int sum = 0;
+            for (int j=0;j<data[i].length;j++){
+                sum += data[i][j];
+            }
+            sumArray [0][i] = i;
+            sumArray [1][i] = sum;
+        }
+        /*call findTopThree method with the sumArray to find the top three farms. store the array (its memory address) 
+        this method returns into the array data (from the method's argument) so we can access its contents from this method
+        and without creating a new array. print the formatted values by accessing the data array.*/
+        data = findTopThree(sumArray);
+        System.out.println("\nFarm with the first highest production: "+ data[0][0] +" with production: "+ data[1][0]);
+        System.out.println("Farm with the second highest production: "+ data[0][1] +" with production: "+ data[1][1]);
+        System.out.println("Farm with the third highest production: "+ data[0][2] +" with production: "+ data[1][2]+"\n");
+    }
+
+    //top_months calculates the top three months with the most production and prints it to the terminal
+    public static void top_months (int[][] data){
+        /*take the same approach as the top_farms method, create the sumArray and traverse the 2d array passed as argument.
+        this time traversing the array by accessing the columns then the rows. store the sums and their index in sumArray*/
+        int [][] sumArray = new int [2][numRowsOrColumns("input.txt", "columns")];
+
+        for(int i=0;i<data[0].length;i++){
+            int sum = 0;
+            for(int j=0;j<data.length;j++){
+                sum += data[j][i];
+            }
+            sumArray [0][i] = i;
+            sumArray [1][i] = sum;
+        }
+
+        /*call findTopThree  with sumArray as in the previous method and assign the reference of the returned array to 
+        the data array (passed as an argument). print formatted values by accesing data array*/
+        data = findTopThree(sumArray);
+        System.out.println("Month with the first highest production: "+ data[0][0] +" with production: "+ data[1][0]);
+        System.out.println("Month with the second highest production: "+ data[0][1] +" with production: "+ data[1][1]);
+        System.out.println("Month with the third highest production: "+ data[0][2] +" with production: "+ data[1][2]+"\n");
+    }
+
+    //findTopThree takes in a 2d array and returns it sorted in descending order
+    public static int [][] findTopThree(int [][] data){
+        /*sort the array in descending order using bubble sort algorithm. two nested for loops traverse the second row of 
+        the 2d array (this method is called with the sumArray array, the second row holds the sums, the first their indexes), 
+        compare the current element to the next and if the current is smaller, they are swapped. if the sum elements in the 
+        second row are swapped, the first row elements, the indexes, are swapped as well.*/
+        for(int i=0;i<data[1].length-1;i++){
+            for(int j=0;j<data[1].length-i-1;j++){
+                //compare current element to next element
+                if (data[1][j]<data[1][j+1]) {
+                    // swap values of sums
+                    int temp = data[1][j];
+                    data[1][j] = data[1][j+1];
+                    data[1][j+1] = temp;
+                    //swap values of their indexes
+                    temp = data[0][j];
+                    data[0][j] = data[0][j+1];
+                    data[0][j+1] = temp;
+                }
+            }
+        }return data;
+    }
+    
+    //calculates the number of rows or columns in a file depending on how it is called
+    public static int numRowsOrColumns(String fileName, String rowsOrColumns){
+        //the counter keeps tracks of the columns/rows
+        int counter = 0;
+        //try catch block to read the file. create file object and scanner pointing to said file object.
+        try{
+            File file = new File (fileName);
+            Scanner sc = new Scanner(file);
+
+            /*line variable stores the current line the scanner is pointing at in case it needs to be split into an array
+            to count the columns.*/
+            String line="";
+            //use isFile() method to check the file passed as argument exists
+            if(file.isFile()){
+                //while loop to read file with scanner
+                while(sc.hasNextLine()){
+                //use the nextLine method to iterate the rows
+                    line=sc.nextLine();
+                    /*if we are counting columns, create an array using split method to count the elements in the row 
+                    to obtain the number of columns*/
+                    if(rowsOrColumns.equals("columns")){
+                        String [] lineArray = line.split(",");
+                        //the length of the array is the number of columns
+                        counter = lineArray.length;
+                        return counter;
+                    }
+                    //otherwise, update the counter
+                    counter++;
+                }   
+            }
+            sc.close();
+        }catch(FileNotFoundException e){
+            System.out.println("An error occurred.");
+            e.printStackTrace();
+        }
+        return counter;
+    }
+}
