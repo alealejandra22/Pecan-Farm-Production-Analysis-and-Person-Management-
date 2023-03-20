@@ -1,0 +1,151 @@
+public class PersonManagementRecursion{
+	public static void main(String args[]) {
+		
+		Person head1 = new Person("bob", 1);
+		head1.next = new Person("jose", 2);
+		head1.next.next = new Person("hannah", 4);
+		head1.next.next.next = new Person("angel", 7);
+		head1.next.next.next.next = new Person("eve", 8);
+		
+		Person head2 = new Person("jose", 2);
+		head2.next = new Person("alex", 3);
+		head2.next.next = new Person("neven", 5);
+		head2.next.next.next = new Person("angel", 7);
+		
+		Person head = mergeSortedLL(head1, head2);
+		System.out.println("---------After merge:---------\n");
+		printLL(head);
+		
+		Person new_node = new Person("sillis",6 );
+		head = insertInSortedOrder(head, new_node);
+		Person new_node2 = new Person("mateo",0 );
+		head = insertInSortedOrder(head, new_node2);
+		System.out.println("-----After adding new node in sorted order:----\n");
+		printLL(head);
+		
+		head = deleteDuplicate(head);
+		System.out.println("-----After deleting duplicates:-----\n");
+		printLL(head);
+		
+		head = reverseLL(head);
+		System.out.println("----------After reverse:----------\n");
+		printLL(head);
+		
+		System.out.println("----------Palindromic Names:----------\n");
+		printPalindromicNames(head);
+	}
+	
+	
+	public static void printLL(Person curr){
+		//base case: when we reach the end of the list
+		if (curr == null)
+            return;
+ 
+        //print using the toString method of the Person class
+		System.out.println(curr.toString());
+		//recursive call with next node
+        printLL(curr.next);
+	}
+	
+	//given two sorted linked lists of person objects (sorted by id), merge the two linked lists into one still sorted by id.
+	public static Person mergeSortedLL(Person curr1, Person curr2){
+		// base cases: if one of the linked lists is empty or we have reached the end, return the other list
+		if (curr1 == null){
+			return curr2;
+		}
+		if (curr2 == null){
+			return curr1;
+		}
+		//create the head of the new merged list and set it to the smaller head
+		//recursively call the method with the next node to traverse the list and assign it to mergeHead.next to keep merging the lists
+		Person mergeHead;
+		if (curr1.getId() < curr2.getId()){
+			mergeHead = curr1;
+			mergeHead.next = (mergeSortedLL(curr1.next, curr2));
+		}else{
+			mergeHead = curr2;
+			mergeHead.next = (mergeSortedLL(curr1, curr2.next));
+		}
+		//return the head of the new merged list
+		return mergeHead;
+	}
+	
+	//given the head of a linked list of person objects (sorted by id), insert the given node in a way the list is sill sorted
+	public static Person insertInSortedOrder(Person curr, Person new_node){
+		//base case: when we reached the end or we find where we want to insert the node
+		if (curr == null || new_node.getId() <= curr.getId()){
+			//link the node with new_node.next=curr and return the new node as the current
+			new_node.next = curr;
+			return new_node;
+		}
+		//recursive call, assign the returned node to curr.next and return the current node afterwards
+		curr.next = insertInSortedOrder(curr.next, new_node);
+		return curr;
+	}
+	
+	//given the head of a linked list of person objects (sorted by id), delete any person with a duplicate id 
+	public static Person deleteDuplicate(Person curr){
+		//base case: if the list is empty or we've reached the end
+		if(curr == null || curr.next == null){
+			return curr;
+		}
+		//check the Ids, the list is sorted so we know identical Ids are beside each other
+		if(curr.getId() == curr.next.getId()){
+			//delete the duplicate node and recursively call the method with curr
+			curr.next = curr.next.next;
+			deleteDuplicate(curr);
+
+		}else{
+			//call with the next node to traverse the list
+			deleteDuplicate(curr.next);
+
+		}return curr;
+	}
+	
+	//given the head of a linked list of person objects, reverse the linked list. 		
+	public static Person reverseLL(Person curr){
+		//base case: if the list is empty or we've reached the end
+		if(curr == null || curr.next == null ){
+        	return curr;
+		}
+		//create a node and assign it the last node as the head of the reversed list
+		Person reverseHead = reverseLL(curr.next);
+		//change the pointers of the remaining nodes to reverse the rest of the list after the recursive call
+		curr.next.next = curr;
+		curr.next = null;
+		//return the head of the new list
+    	return reverseHead;
+	}
+	
+	//given the head of a linked list of person objects, print all the palindromic names of the person class
+	public static boolean isPalindrome(String name, int start, int end){
+		//base case: when we have traversed the entire word with both pointers and haven't returned false
+        if(start>=end){
+           return true;
+        }
+		//create variables for the current first and last letter of the word and compare them
+		String first = name.charAt(start) + "";
+		String last = name.charAt(end) + "";
+		//if they are the same, continue with the recursive call, else return false
+	 	if(first.equalsIgnoreCase(last)){
+            return isPalindrome(name, start+1,end-1);
+
+        }return false;
+	}
+	
+	//recursively traverse the linked list to call isPalindrome on each person object
+	public static void printPalindromicNames(Person curr){
+		//base case: if the list is empty or we've reached the end
+		if(curr==null){
+            return;
+        }
+		//create a variable for the name of the person node and call the isPalindrome method
+        String name = curr.getName();
+		if(isPalindrome(name,0,name.length()-1)){
+            System.out.println(name + " is Palindrome");
+
+        }
+		//traverse the list with a recursive call on the next node
+		printPalindromicNames(curr.next);
+	}
+}
